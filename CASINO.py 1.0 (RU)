@@ -1,0 +1,75 @@
+import random
+
+def print_banner():
+    print("=" * 50)
+    print("          ДОБРО ПОЖАЛОВАТЬ В КАЗИНО (by SANIKEY)          ")
+    print("=" * 50)
+
+def print_balance(balance):
+    print(f"Ваш текущий баланс: {balance} монет")
+
+def print_game_info():
+    print("=" * 50)
+    print("  Поставьте свою ставку и попробуйте угадать число от 1 до 10")
+    print("=" * 50)
+
+def print_result(player_guess, winning_number):
+    print(f"Вы загадали: {player_guess}, но выпало число: {winning_number}")
+
+def print_separator():
+    print("=" * 50)
+
+def casino_game():
+    print_banner()
+    
+    player_balance = 100
+    while player_balance > 0:
+        print_balance(player_balance)
+        
+        action = input("Введите 'g' для продолжения игры, 'b' для пополнения баланса или 'q' для выхода: ").lower()
+        
+        if action == 'q':
+            print("Спасибо за игру! До свидания!")
+            break
+        
+        if action == 'b':
+            add_amount = int(input("Введите сумму для пополнения баланса: "))
+            player_balance += add_amount
+            print(f"Ваш баланс пополнен на {add_amount} монет. Новый баланс: {player_balance} монет")
+            print_separator()
+            continue
+        
+        if action != 'g':
+            print("Некорректный ввод. Попробуйте снова.")
+            print_separator()
+            continue
+        
+        bet = int(input("Введите вашу ставку: "))
+        
+        if bet > player_balance:
+            print("У вас недостаточно средств для этой ставки.")
+            print_separator()
+            continue
+        
+        print_game_info()
+        player_guess = int(input("Введите число от 1 до 10: "))
+        winning_number = random.randint(1, 10)
+        
+        print_result(player_guess, winning_number)
+        
+        # Всегда проигрыш
+        if player_guess == winning_number:
+            print("Поздравляем! Вы угадали число, но у нас особое правило - вы всё равно проигрываете.")
+            player_balance -= bet
+        else:
+            print("К сожалению, вы проиграли.")
+            player_balance -= bet
+        
+        print_separator()
+        
+        if player_balance <= 0:
+            print("Ваш баланс исчерпан. Игра окончена.")
+            print_separator()
+            break
+
+casino_game()
