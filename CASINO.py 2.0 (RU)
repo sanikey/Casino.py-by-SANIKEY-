@@ -1,0 +1,72 @@
+import random
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
+
+class CasinoApp(App):
+    def build(self):
+        self.balance = 100
+
+        self.layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        
+        self.banner = Label(text="ДОБРО ПОЖАЛОВАТЬ В КАЗИНО (by SANIKEY)", font_size=24)
+        self.layout.add_widget(self.banner)
+        
+        self.balance_label = Label(text=f"Ваш текущий баланс: {self.balance} монет", font_size=18)
+        self.layout.add_widget(self.balance_label)
+        
+        self.bet_input = TextInput(hint_text="Введите вашу ставку (1-10)", multiline=False, input_filter='int', font_size=18)
+        self.layout.add_widget(self.bet_input)
+        
+        self.guess_input = TextInput(hint_text="Угадайте число от 1 до 10", multiline=False, input_filter='int', font_size=18)
+        self.layout.add_widget(self.guess_input)
+        
+        self.spin_button = Button(text="Играть", font_size=18, on_press=self.spin)
+        self.layout.add_widget(self.spin_button)
+        
+        self.result_label = Label(text="", font_size=18)
+        self.layout.add_widget(self.result_label)
+        
+        self.play_again_button = Button(text="Играть снова", font_size=18, on_press=self.play_again)
+        self.layout.add_widget(self.play_again_button)
+        
+        return self.layout
+
+    def spin(self, instance):
+        bet = int(self.bet_input.text)
+        if bet < 1 or bet > 10:
+            self.result_label.text = "Некорректная ставка. Введите ставку от 1 до 10."
+            return
+        
+        if bet > self.balance:
+            self.result_label.text = "У вас недостаточно средств для этой ставки."
+            return
+        
+        player_guess = int(self.guess_input.text)
+        winning_number = random.randint(1, 10)
+        
+        # Гарантируем, что выигрышное число всегда отличается от числа, введенного игроком
+        while winning_number == player_guess:
+            winning_number = random.randint(1, 10)
+
+        self.result_label.text = f"Вы загадали: {player_guess}, но выпало число: {winning_number}"
+        self.result_label.text += "\nК сожалению, вы проиграли."
+        
+        self.balance -= bet
+        self.balance_label.text = f"Ваш текущий баланс: {self.balance}"
+        
+        if self.balance <= 0:
+            self.result_label.text += "\nВаш баланс исчерпан. Игра окончена."
+
+    def play_again(self, instance):
+        if self.balance <= 0:
+            self.balance = 100
+            self.result_label.text = ""
+        self.balance_label.text = f"Ваш текущий баланс: {self.balance}"
+        self.bet_input.text = ""
+        self.guess_input.text = ""
+
+if __name__ == '__main__':
+    CasinoApp().run()
