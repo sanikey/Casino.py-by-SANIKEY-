@@ -1,0 +1,72 @@
+import random
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
+
+class CasinoApp(App):
+    def build(self):
+        self.balance = 100
+
+        self.layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        
+        self.banner = Label(text="WELCOME TO THE CASINO (by SANIKEY)", font_size=24)
+        self.layout.add_widget(self.banner)
+        
+        self.balance_label = Label(text=f"Your current balance: {self.balance} coins", font_size=18)
+        self.layout.add_widget(self.balance_label)
+        
+        self.bet_input = TextInput(hint_text="Enter your bet (1-10)", multiline=False, input_filter='int', font_size=18)
+        self.layout.add_widget(self.bet_input)
+        
+        self.guess_input = TextInput(hint_text="Guess a number from 1 to 10", multiline=False, input_filter='int', font_size=18)
+        self.layout.add_widget(self.guess_input)
+        
+        self.spin_button = Button(text="Spin", font_size=18, on_press=self.spin)
+        self.layout.add_widget(self.spin_button)
+        
+        self.result_label = Label(text="", font_size=18)
+        self.layout.add_widget(self.result_label)
+        
+        self.play_again_button = Button(text="Play Again", font_size=18, on_press=self.play_again)
+        self.layout.add_widget(self.play_again_button)
+        
+        return self.layout
+
+    def spin(self, instance):
+        bet = int(self.bet_input.text)
+        if bet < 1 or bet > 10:
+            self.result_label.text = "Invalid bet. Please enter a bet between 1 and 10."
+            return
+        
+        if bet > self.balance:
+            self.result_label.text = "You don't have enough balance for this bet."
+            return
+        
+        player_guess = int(self.guess_input.text)
+        winning_number = random.randint(1, 10)
+        
+        # Ensure the winning number is always different from the player's guess
+        while winning_number == player_guess:
+            winning_number = random.randint(1, 10)
+
+        self.result_label.text = f"You guessed: {player_guess}, but the winning number was: {winning_number}"
+        self.result_label.text += "\nSorry, you lose."
+        
+        self.balance -= bet
+        self.balance_label.text = f"Your current balance: {self.balance}"
+        
+        if self.balance <= 0:
+            self.result_label.text += "\nYour balance is depleted. Game over."
+
+    def play_again(self, instance):
+        if self.balance <= 0:
+            self.balance = 100
+            self.result_label.text = ""
+        self.balance_label.text = f"Your current balance: {self.balance}"
+        self.bet_input.text = ""
+        self.guess_input.text = ""
+
+if __name__ == '__main__':
+    CasinoApp().run()
